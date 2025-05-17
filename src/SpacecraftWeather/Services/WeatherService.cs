@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SpacecraftWeather.Database;
 using SpacecraftWeather.Entities;
 using SpacecraftWeather.ExternalWebService;
@@ -9,16 +10,25 @@ namespace SpacecraftWeather.Services
     {
         private readonly IWeatherWebService _weatherWebService;
         private readonly WeatherDbContext _dbContext;
+        private readonly IMemoryCache _cache;
+        const string CACHE_KEY = nameof(WeatherService);
 
         public WeatherService(IWeatherWebService weatherWebService,
-            WeatherDbContext dbContext)
+            WeatherDbContext dbContext,
+            IMemoryCache cache)
         {
             _weatherWebService = weatherWebService;
             _dbContext = dbContext;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<Weather>?> GetHourlyTemperatureAsync(double latitude, double longitude)
         {
+            if (_cache.TryGetValue(CACHE_KEY, out IEnumerable<Weather> cachedData))
+            {
+                return cachedData;
+            }
+
             var wsResponse = await _weatherWebService.GetWeatherAsync(latitude, longitude);
 
             if (wsResponse == null)
@@ -39,10 +49,12 @@ namespace SpacecraftWeather.Services
                 //insert anyway
                 await _dbContext.AddRangeAsync(wsResponse);
                 _dbContext.SaveChanges();
+
+                // Save in cache
+                _cache.Set(CACHE_KEY, wsResponse, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15)));
+
                 return wsResponse;
             }
-
-            //
         }
     }
 }

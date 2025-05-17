@@ -19,7 +19,7 @@ builder.Services.AddDbContext<WeatherDbContext>(options =>
 builder.Services.Configure<WeatherWebServiceSettings>(builder.Configuration.GetSection(nameof(WeatherWebServiceSettings)));
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IWeatherWebService, WeatherWebService>();
-
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient(nameof(WeatherWebService), (serviceProvider, client) =>
 {
     var settings = serviceProvider.GetRequiredService<IOptions<WeatherWebServiceSettings>>().Value;
