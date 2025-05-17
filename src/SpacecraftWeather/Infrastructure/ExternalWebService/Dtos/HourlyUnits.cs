@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SpacecraftWeather.ExternalWebService.DTOs
+namespace SpacecraftWeather.Infrastructure.ExternalWebService.Dtos
 {
     public class HourlyUnits
     {

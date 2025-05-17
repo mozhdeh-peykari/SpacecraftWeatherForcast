@@ -1,6 +1,6 @@
-﻿using SpacecraftWeather.Entities;
+﻿using SpacecraftWeather.Application.Entities;
 
-namespace SpacecraftWeather.ExternalWebService
+namespace SpacecraftWeather.Infrastructure.ExternalWebService
 {
     public interface IWeatherWebService
     {

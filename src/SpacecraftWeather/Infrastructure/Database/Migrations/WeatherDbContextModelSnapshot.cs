@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SpacecraftWeather.Database;
+using SpacecraftWeather.Infrastructure.Database;
 
 #nullable disable
 
 namespace SpacecraftWeather.Migrations
 {
     [DbContext(typeof(WeatherDbContext))]
-    [Migration("20250516194027_init")]
-    partial class init
+    partial class WeatherDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +22,7 @@ namespace SpacecraftWeather.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SpacecraftWeather.Entities.Weather", b =>
+            modelBuilder.Entity("SpacecraftWeather.Application.Entities.Weather", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

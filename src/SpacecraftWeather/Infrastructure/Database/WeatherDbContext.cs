@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpacecraftWeather.Entities;
+using SpacecraftWeather.Application.Entities;
 
-namespace SpacecraftWeather.Database
+namespace SpacecraftWeather.Infrastructure.Database
 {
     public class WeatherDbContext : DbContext
     {

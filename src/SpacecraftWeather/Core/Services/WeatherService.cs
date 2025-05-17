@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using SpacecraftWeather.Database;
-using SpacecraftWeather.Entities;
-using SpacecraftWeather.ExternalWebService;
+using SpacecraftWeather.Application.Entities;
+using SpacecraftWeather.Infrastructure.Database;
+using SpacecraftWeather.Infrastructure.ExternalWebService;
 
-namespace SpacecraftWeather.Services
+namespace SpacecraftWeather.Application.Services
 {
     public class WeatherService : IWeatherService
     {
@@ -33,28 +33,35 @@ namespace SpacecraftWeather.Services
 
             if (wsResponse == null)
             {
-                //get from db
-                var fromDate = DateTime.Now;
-                var list = await _dbContext.Weather.Where(x => x.Latitude == latitude
-                                            && x.Longitude == longitude
-                                            && x.Date >= fromDate)
-                    .GroupBy(w => new { w.Latitude, w.Longitude, w.Date })
-                    .Select(g => g.OrderByDescending(w => w.CreatedOn).FirstOrDefault())
-                    .ToListAsync();
-
-                return list;
+                return await GetWeatherFromDb(latitude, longitude);
             }
             else
             {
-                //insert anyway
-                await _dbContext.AddRangeAsync(wsResponse);
-                _dbContext.SaveChanges();
+                await InsertIntoDb(wsResponse);
 
-                // Save in cache
                 _cache.Set(CACHE_KEY, wsResponse, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15)));
 
                 return wsResponse;
             }
+        }
+
+        private async Task InsertIntoDb(IEnumerable<Weather> wsResponse)
+        {
+            await _dbContext.AddRangeAsync(wsResponse);
+            _dbContext.SaveChanges();
+        }
+
+        private async Task<IEnumerable<Weather>?> GetWeatherFromDb(double latitude, double longitude)
+        {
+            var fromDate = DateTime.Today;
+            var list = await _dbContext.Weather.Where(x => x.Latitude == latitude
+                                        && x.Longitude == longitude
+                                        && x.Date >= fromDate)
+                .GroupBy(w => new { w.Latitude, w.Longitude, w.Date })
+                .Select(g => g.OrderByDescending(w => w.CreatedOn).FirstOrDefault())
+                .ToListAsync();
+
+            return list.Count == 0 ? null : list;
         }
     }
 }

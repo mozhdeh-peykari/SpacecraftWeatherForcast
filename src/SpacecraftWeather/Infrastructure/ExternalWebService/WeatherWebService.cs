@@ -1,21 +1,24 @@
 ﻿using Microsoft.Extensions.Options;
-using SpacecraftWeather.Entities;
-using SpacecraftWeather.ExternalWebService.DTOs;
-using SpacecraftWeather.Settings;
+using SpacecraftWeather.Application.Entities;
+using SpacecraftWeather.Application.Settings;
+using SpacecraftWeather.Infrastructure.ExternalWebService.Dtos;
 using System.Text.Json;
 
-namespace SpacecraftWeather.ExternalWebService
+namespace SpacecraftWeather.Infrastructure.ExternalWebService
 {
     public class WeatherWebService : IWeatherWebService
     {
         private readonly WeatherWebServiceSettings _settings;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<WeatherWebService> _logger;
 
         public WeatherWebService(IOptions<WeatherWebServiceSettings> options,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            ILogger<WeatherWebService> logger)
         {
             _settings = options.Value;
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Weather>?> GetWeatherAsync(double latitude, double longitude)
@@ -30,9 +33,13 @@ namespace SpacecraftWeather.ExternalWebService
                     $"{_settings.Resource}?latitude={latitude}&longitude={longitude}&hourly=temperature_2m");
 
             }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP request failed");
+            }
             catch (Exception ex)
             {
-                //log ex
+                _logger.LogError(ex, "Error in calling weather web service");
             }
 
             if (wsResponse != null)

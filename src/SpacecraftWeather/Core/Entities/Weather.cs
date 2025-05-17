@@ -1,4 +1,4 @@
-﻿namespace SpacecraftWeather.Entities
+﻿namespace SpacecraftWeather.Application.Entities
 {
     public class Weather
     {
