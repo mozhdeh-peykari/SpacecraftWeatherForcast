@@ -40,7 +40,7 @@ namespace SpacecraftWeather.Infrastructure.ExternalWebService
                     .HandleResult(r => !r.IsSuccessStatusCode)
                     .Or<HttpRequestException>()
                     .CircuitBreakerAsync(
-                        handledEventsAllowedBeforeBreaking: 3,
+                        handledEventsAllowedBeforeBreaking: 5,
                         durationOfBreak: TimeSpan.FromSeconds(30),
                         onBreak: (outcome, breakDelay, context) =>
                         {
