@@ -16,7 +16,7 @@ namespace SpacecraftWeather.Adapters.Api
         }
 
         [HttpPost]
-        public async Task<IActionResult> HourlyTemperature(double latitude = 1, double longitude = 2)
+        public async Task<IActionResult> HourlyTemperature(double latitude, double longitude)
         {
             if (latitude > 90 || latitude < -90)
             {
