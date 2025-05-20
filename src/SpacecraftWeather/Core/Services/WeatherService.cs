@@ -11,7 +11,6 @@ namespace SpacecraftWeather.Application.Services
         private readonly IWeatherWebService _weatherWebService;
         private readonly WeatherDbContext _dbContext;
         private readonly IMemoryCache _cache;
-        const string CACHE_KEY = nameof(WeatherService);
 
         public WeatherService(IWeatherWebService weatherWebService,
             WeatherDbContext dbContext,
@@ -24,7 +23,8 @@ namespace SpacecraftWeather.Application.Services
 
         public async Task<IEnumerable<Weather>?> GetHourlyTemperatureAsync(double latitude, double longitude)
         {
-            if (_cache.TryGetValue(CACHE_KEY, out IEnumerable<Weather> cachedData))
+            var cacheKey = $"{nameof(WeatherService)}-{DateTime.UtcNow.ToString("yyyy-MM-dd")}-{latitude}-{longitude}";
+            if (_cache.TryGetValue(cacheKey, out IEnumerable<Weather> cachedData))
             {
                 return cachedData;
             }
@@ -39,7 +39,7 @@ namespace SpacecraftWeather.Application.Services
             {
                 await InsertIntoDb(wsResponse);
 
-                _cache.Set(CACHE_KEY, wsResponse, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15)));
+                _cache.Set(cacheKey, wsResponse, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(15)));
 
                 return wsResponse;
             }
